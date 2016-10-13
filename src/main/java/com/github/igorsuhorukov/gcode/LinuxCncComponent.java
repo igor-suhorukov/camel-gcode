@@ -25,4 +25,14 @@ public class LinuxCncComponent extends UriEndpointComponent {
         setProperties(endpoint, parameters);
         return endpoint;
     }
+
+    @Override
+    protected void doStart() throws Exception {
+        super.doStart();
+    }
+
+    @Override
+    protected void doStop() throws Exception {
+        super.doStop();
+    }
 }

@@ -15,7 +15,7 @@
 
   <name>Apache Camel GCode/LinuxCNC Component</name>
   <url>https://github.com/igor-suhorukov/camel-gcode</url>
-  
+
   <developers>
     <developer>
       <name>Igor Sukhorukov</name>
@@ -49,6 +49,17 @@
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
       <version>${apache.camel.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-net</groupId>
+      <artifactId>commons-net</artifactId>
+      <version>3.5</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.4</version>
     </dependency>
 
     <!-- support camel documentation -->

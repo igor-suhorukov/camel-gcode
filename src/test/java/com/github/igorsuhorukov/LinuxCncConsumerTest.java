@@ -20,7 +20,7 @@ public class LinuxCncConsumerTest extends CamelTestSupport {
         return new RouteBuilder() {
             public void configure() {
                 from("direct:foo")
-                  .to("gcode:?host=beaglebone.local&port=5007")
+                  .to("gcode:?host=beaglebone.local&port=5007&autoHomeAxisCount=4")
                   .to("mock:result");
             }
         };

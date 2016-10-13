@@ -10,6 +10,8 @@ import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriPath;
 import org.apache.camel.util.ObjectHelper;
 
+import java.io.IOException;
+
 /**
  * Represents a LinuxCnc endpoint.
  */
@@ -27,6 +29,8 @@ public class LinuxCncEndpoint extends DefaultEndpoint {
     private String clientName = "ApacheCamel";
     @UriParam(defaultValue = "1.0")
     private String clientVersion = "1.0";
+    @UriParam(defaultValue = "null")
+    private Integer autoHomeAxisCount;
 
     private GCodeClient gCodeClient;
 
@@ -104,17 +108,45 @@ public class LinuxCncEndpoint extends DefaultEndpoint {
         this.clientVersion = clientVersion;
     }
 
+    public Integer getAutoHomeAxisCount() {
+        return autoHomeAxisCount;
+    }
+
+    public void setAutoHomeAxisCount(Integer autoHomeAxisCount) {
+        this.autoHomeAxisCount = autoHomeAxisCount;
+    }
+
+    public GCodeClient getgCodeClient() {
+        return gCodeClient;
+    }
+
+    public void setgCodeClient(GCodeClient gCodeClient) {
+        this.gCodeClient = gCodeClient;
+    }
+
     @Override
     protected void doStart() throws Exception {
         super.doStart();
         gCodeClient = new GCodeClient(host, port);
         gCodeClient.login(password, clientName, clientVersion);
+        if(autoHomeAxisCount!=null){
+            performAutoHoming();
+        }
     }
 
     @Override
     protected void doStop() throws Exception {
         super.doStop();
         gCodeClient.close();
+    }
+
+    private void performAutoHoming() throws IOException {
+        gCodeClient.sendCommand("set mode manual");
+        gCodeClient.sendCommand("set estop off");
+        gCodeClient.sendCommand("set machine on");
+        for(int axis=0; axis<autoHomeAxisCount; axis++)
+            gCodeClient.sendCommand("set home " + axis);
+        gCodeClient.sendCommand("set mode mdi");
     }
 
     public GCodeClient getGCodeClient() {

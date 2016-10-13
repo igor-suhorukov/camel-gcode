@@ -33,7 +33,7 @@ public class GCodeClient implements Closeable{
         return loginResponse;
     }
 
-    public String sendCommand(String command) throws IOException {
+    public synchronized String sendCommand(String command) throws IOException {
         writeCommand(command);
         String responseStr = response.readLine();
         if(command.toLowerCase().startsWith("get ")){

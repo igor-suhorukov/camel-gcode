@@ -8,16 +8,27 @@ import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriPath;
+import org.apache.camel.util.ObjectHelper;
 
 /**
  * Represents a LinuxCnc endpoint.
  */
-@UriEndpoint(scheme = "gcode", title = "LinuxCnc", syntax="gcode:name", consumerClass = LinuxCncConsumer.class, label = "LinuxCnc")
+@UriEndpoint(scheme = "gcode", title = "LinuxCnc", syntax="gcode:command", consumerClass = LinuxCncConsumer.class, label = "LinuxCnc")
 public class LinuxCncEndpoint extends DefaultEndpoint {
-    @UriPath @Metadata(required = "true")
-    private String name;
-    @UriParam(defaultValue = "10")
-    private int option = 10;
+    @UriPath
+    private String command;
+    @UriParam @Metadata(required = "true")
+    private String host;
+    @UriParam(defaultValue = "5007")
+    private int port = 5007;
+    @UriParam(defaultValue = "EMC")
+    private String password = "EMC";
+    @UriParam(defaultValue = "ApacheCamel")
+    private String clientName = "ApacheCamel";
+    @UriParam(defaultValue = "1.0")
+    private String clientVersion = "1.0";
+
+    private GCodeClient gCodeClient;
 
     public LinuxCncEndpoint() {
     }
@@ -35,6 +46,7 @@ public class LinuxCncEndpoint extends DefaultEndpoint {
     }
 
     public Consumer createConsumer(Processor processor) throws Exception {
+        ObjectHelper.notEmpty(command, "command");
         return new LinuxCncConsumer(this, processor);
     }
 
@@ -42,25 +54,70 @@ public class LinuxCncEndpoint extends DefaultEndpoint {
         return true;
     }
 
-    /**
-     * Some description of this option, and what it does
-     */
-    public void setName(String name) {
-        this.name = name;
+    public String getCommand() {
+        return command;
     }
 
-    public String getName() {
-        return name;
+    public void setCommand(String command) {
+        ObjectHelper.notEmpty(command, "command");
+        this.command = command;
     }
 
-    /**
-     * Some description of this option, and what it does
-     */
-    public void setOption(int option) {
-        this.option = option;
+    public String getHost() {
+        return host;
     }
 
-    public int getOption() {
-        return option;
+    public void setHost(String host) {
+        ObjectHelper.notEmpty(host, "host");
+        this.host = host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
+
+    public String getClientVersion() {
+        return clientVersion;
+    }
+
+    public void setClientVersion(String clientVersion) {
+        this.clientVersion = clientVersion;
+    }
+
+    @Override
+    protected void doStart() throws Exception {
+        super.doStart();
+        gCodeClient = new GCodeClient(host, port);
+        gCodeClient.login(password, clientName, clientVersion);
+    }
+
+    @Override
+    protected void doStop() throws Exception {
+        super.doStop();
+        gCodeClient.close();
+    }
+
+    public GCodeClient getGCodeClient() {
+        return gCodeClient;
     }
 }

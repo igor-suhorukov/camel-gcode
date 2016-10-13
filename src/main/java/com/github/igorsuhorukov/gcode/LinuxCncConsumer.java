@@ -1,7 +1,5 @@
 package com.github.igorsuhorukov.gcode;
 
-import java.util.Date;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.impl.ScheduledPollConsumer;
@@ -21,9 +19,13 @@ public class LinuxCncConsumer extends ScheduledPollConsumer {
     protected int poll() throws Exception {
         Exchange exchange = endpoint.createExchange();
 
-        // create a message body
-        Date now = new Date();
-        exchange.getIn().setBody("Hello World! The time is " + now);
+        String result = null;
+        try {
+            result = endpoint.getGCodeClient().sendCommand(endpoint.getCommand());
+            exchange.getIn().setBody(result);
+        } catch (Exception e) {
+            exchange.setException(e);
+        }
 
         try {
             // send message to next processor in the route

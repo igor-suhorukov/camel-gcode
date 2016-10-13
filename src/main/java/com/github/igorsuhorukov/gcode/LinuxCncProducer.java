@@ -18,7 +18,8 @@ public class LinuxCncProducer extends DefaultProducer {
     }
 
     public void process(Exchange exchange) throws Exception {
-        System.out.println(exchange.getIn().getBody());    
+        String command = exchange.getIn().getBody(String.class);
+        String response = endpoint.getGCodeClient().sendCommand(command);
+        exchange.getOut().setBody(response, String.class);
     }
-
 }

@@ -11,7 +11,7 @@
   <groupId>com.github.igor-suhorukov</groupId>
   <artifactId>camel-gcode</artifactId>
   <packaging>bundle</packaging>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1</version>
 
   <name>Apache Camel GCode/LinuxCNC Component</name>
   <url>https://github.com/igor-suhorukov/camel-gcode</url>

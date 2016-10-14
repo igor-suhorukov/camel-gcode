@@ -13,7 +13,7 @@ camelContext.addRoutes(new RouteBuilder() {
     def void configure() {
         from('jetty:http://0.0.0.0:9090/moveTo').routeId('CamelCNC')
                 .process{ it.in.body =
-                  ("g0 x${Math.round(Math.random()*10)} y${Math.round(Math.random()*10)} z1") }
+                  ("set mdi g0 x${Math.round(Math.random()*10)} y${Math.round(Math.random()*10)} z1") }
                 .to('gcode:?host=beaglebone.local&port=5007&autoHomeAxisCount=4')
     }
 })

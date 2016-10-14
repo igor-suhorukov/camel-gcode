@@ -17,19 +17,19 @@ import java.io.IOException;
  */
 @UriEndpoint(scheme = "gcode", title = "LinuxCnc", syntax="gcode:command", consumerClass = LinuxCncConsumer.class, label = "LinuxCnc")
 public class LinuxCncEndpoint extends DefaultEndpoint {
-    @UriPath
+    @UriPath(description = "Specify linuxcncrsh command for endpoint in consumer mode only. See http://linuxcnc.org/docs/html/man/man1/linuxcncrsh.1.html")
     private String command;
-    @UriParam @Metadata(required = "true")
+    @UriParam(description = "Specify the host for linuxcncrsh to listen on. See http://linuxcnc.org/docs/html/man/man1/linuxcncrsh.1.html") @Metadata(required = "true")
     private String host;
-    @UriParam(defaultValue = "5007")
+    @UriParam(defaultValue = "5007", description = "Specify the port for linuxcncrsh to listen on.")
     private int port = 5007;
-    @UriParam(defaultValue = "EMC")
+    @UriParam(defaultValue = "EMC", description = "Specify the connection password to use during handshaking with a new client.")
     private String password = "EMC";
-    @UriParam(defaultValue = "ApacheCamel")
+    @UriParam(defaultValue = "ApacheCamel", description = "Client name is used during handshaking with a new client.")
     private String clientName = "ApacheCamel";
-    @UriParam(defaultValue = "1.0")
+    @UriParam(defaultValue = "1.0", description = "Client version is used during handshaking with a new client.")
     private String clientVersion = "1.0";
-    @UriParam(defaultValue = "null")
+    @UriParam(defaultValue = "null", description = "Specify axis count of your CNC. This count is used during autohoming after connection.")
     private Integer autoHomeAxisCount;
 
     private GCodeClient gCodeClient;
@@ -46,6 +46,9 @@ public class LinuxCncEndpoint extends DefaultEndpoint {
     }
 
     public Producer createProducer() throws Exception {
+        if(ObjectHelper.isNotEmpty(command)){
+            throw new IllegalArgumentException("'command' provided for endpoint in producer mode.");
+        }
         return new LinuxCncProducer(this);
     }
 

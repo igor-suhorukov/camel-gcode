@@ -3,6 +3,7 @@ package com.github.igorsuhorukov.gcode;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.impl.ScheduledPollConsumer;
+import org.apache.camel.util.ObjectHelper;
 
 /**
  * The LinuxCnc consumer.
@@ -13,6 +14,7 @@ public class LinuxCncConsumer extends ScheduledPollConsumer {
     public LinuxCncConsumer(LinuxCncEndpoint endpoint, Processor processor) {
         super(endpoint, processor);
         this.endpoint = endpoint;
+        ObjectHelper.notEmpty(endpoint.getCommand(), "command");
     }
 
     @Override

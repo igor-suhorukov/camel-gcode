@@ -21,7 +21,7 @@ public class LinuxCncProducer extends DefaultProducer {
     public void process(Exchange exchange) throws Exception {
         String command = exchange.getIn().getBody(String.class);
         ObjectHelper.notEmpty(command, "command");
-        String response = endpoint.getGCodeClient().sendCommand(command);
+        String response = endpoint.sendCncCommand(command);
         exchange.getOut().setBody(response, String.class);
     }
 }

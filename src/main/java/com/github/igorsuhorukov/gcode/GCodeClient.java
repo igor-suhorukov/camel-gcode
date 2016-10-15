@@ -11,7 +11,7 @@ public class GCodeClient implements Closeable{
 
     private TelnetClient client;
     private OutputStream outputStream;
-    BufferedReader response;
+    private BufferedReader response;
 
     public GCodeClient(String hostname, int port) throws IOException {
         client = new TelnetClient();
@@ -36,14 +36,21 @@ public class GCodeClient implements Closeable{
     public synchronized String sendCommand(String command) throws IOException {
         writeCommand(command);
         String responseStr = response.readLine();
+        System.out.println("CMD " + command);
+        System.out.println(responseStr);
+        validateResponseErr(responseStr);
         if(command.toLowerCase().startsWith("get ")){
-            if(responseStr.contains(" NAK")){
-                throw new RuntimeException(responseStr);
-            } else {
-                return response.readLine();
-            }
+            String next = response.readLine();
+            System.out.println(next);
+            return next;
         }
         return responseStr;
+    }
+
+    private void validateResponseErr(String responseStr) {
+        if(responseStr.contains(" NAK")){
+            throw new RuntimeException(responseStr);
+        }
     }
 
     private static BufferedReader getResponseReader(TelnetClient cncClient) {
@@ -57,8 +64,8 @@ public class GCodeClient implements Closeable{
 
     @Override
     public void close() throws IOException {
-        IOUtils.closeQuietly(outputStream);
-        IOUtils.closeQuietly(response);
-        client.disconnect();
+        if(outputStream!=null) IOUtils.closeQuietly(outputStream);
+        if(response!=null) IOUtils.closeQuietly(response);
+        if(client!=null) client.disconnect();
     }
 }

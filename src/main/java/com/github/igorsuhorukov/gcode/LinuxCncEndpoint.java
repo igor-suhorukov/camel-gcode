@@ -9,6 +9,9 @@ import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriPath;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -33,6 +36,8 @@ public class LinuxCncEndpoint extends DefaultEndpoint {
     private Integer autoHomeAxisCount;
 
     private GCodeClient gCodeClient;
+
+    private static final Logger LOG = LoggerFactory.getLogger(LinuxCncEndpoint.class);
 
     public LinuxCncEndpoint() {
     }
@@ -130,11 +135,7 @@ public class LinuxCncEndpoint extends DefaultEndpoint {
     @Override
     protected void doStart() throws Exception {
         super.doStart();
-        gCodeClient = new GCodeClient(host, port);
-        gCodeClient.login(password, clientName, clientVersion);
-        if(autoHomeAxisCount!=null){
-            performAutoHoming();
-        }
+        createGcodeClient();
     }
 
     @Override
@@ -143,16 +144,37 @@ public class LinuxCncEndpoint extends DefaultEndpoint {
         gCodeClient.close();
     }
 
+    private synchronized void createGcodeClient() throws IOException {
+        gCodeClient = new GCodeClient(host, port);
+        gCodeClient.login(password, clientName, clientVersion);
+        if (autoHomeAxisCount != null) {
+            performAutoHoming();
+        }
+    }
+
     private void performAutoHoming() throws IOException {
-        gCodeClient.sendCommand("set mode manual");
         gCodeClient.sendCommand("set estop off");
         gCodeClient.sendCommand("set machine on");
+        gCodeClient.sendCommand("set mode manual");
         for(int axis=0; axis<autoHomeAxisCount; axis++)
             gCodeClient.sendCommand("set home " + axis);
+        String mode = gCodeClient.sendCommand("get mode");
         gCodeClient.sendCommand("set mode mdi");
     }
 
-    public GCodeClient getGCodeClient() {
-        return gCodeClient;
+    public String sendCncCommand(String command) throws IOException {
+        try {
+            return gCodeClient.sendCommand(command);
+        } catch (IOException e){
+            LOG.warn("Command '"+command+"' is failed",e);
+            reconnect();
+            return gCodeClient.sendCommand(command);
+        }
+    }
+
+    private synchronized void reconnect() throws IOException {
+        LOG.info("Try to reconnect");
+        IOUtils.closeQuietly(gCodeClient);
+        createGcodeClient();
     }
 }

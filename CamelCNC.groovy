@@ -1,4 +1,4 @@
-@Grab('com.github.igor-suhorukov:camel-gcode:0.1')
+//@Grab('com.github.igor-suhorukov:camel-gcode:0.1')
 @Grab('org.apache.camel:camel-groovy:2.18.0')
 @Grab('org.apache.camel:camel-core:2.18.0')
 @Grab('org.apache.camel:camel-jetty:2.18.0')
